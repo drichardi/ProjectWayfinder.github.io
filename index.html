@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Wayfinder: Student Mission Log</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0;
+        }
+        
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Starry Background Animation */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+            opacity: var(--opacity);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: var(--opacity); transform: scale(1); }
+            50% { opacity: 0.2; transform: scale(0.5); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        
+        .house-table-row:nth-child(even) {
+            background-color: rgba(30, 41, 59, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Background Stars -->
+    <div id="star-container" class="stars"></div>
+
+    <!-- Navigation -->
+    <nav class="w-full glass-panel border-b border-slate-700 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i data-lucide="compass" class="text-cyan-400 w-8 h-8"></i>
+                <h1 class="text-xl font-bold tracking-tight text-white">PROJECT <span class="text-cyan-400">WAYFINDER</span></h1>
+            </div>
+            <div class="text-sm text-slate-400 font-medium hidden md:block">
+                AP CS A • Unit 3: Class Design
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-6xl">
+        
+        <!-- Welcome Hero -->
+        <section class="mb-12 text-center py-6">
+            <h2 class="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-500 mb-4">
+                Architecting the Digital Canoe
+            </h2>
+            <p class="text-lg text-slate-300 max-w-2xl mx-auto">
+                Welcome back, Navigator. Your mission is to build the software for the Hōkūleʻa's navigation computer.
+            </p>
+        </section>
+
+        <!-- Progress Steps -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-12" id="nav-grid">
+            <button onclick="switchTab('briefing')" id="btn-briefing" class="glass-panel p-3 rounded-lg text-left hover:bg-slate-800 transition-all border-l-4 border-cyan-500 active-tab">
+                <div class="text-[10px] text-cyan-400 uppercase font-bold mb-1">Step 0</div>
+                <div class="font-semibold text-white text-sm md:text-base">Briefing</div>
+            </button>
+            <button onclick="switchTab('anatomy')" id="btn-anatomy" class="glass-panel p-3 rounded-lg text-left hover:bg-slate-800 transition-all border-l-4 border-transparent opacity-60">
+                <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Step 1</div>
+                <div class="font-semibold text-white text-sm md:text-base">Class Anatomy</div>
+            </button>
+            <button onclick="switchTab('logic')" id="btn-logic" class="glass-panel p-3 rounded-lg text-left hover:bg-slate-800 transition-all border-l-4 border-transparent opacity-60">
+                <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Step 2</div>
+                <div class="font-semibold text-white text-sm md:text-base">Compass Logic</div>
+            </button>
+            <button onclick="switchTab('launch')" id="btn-launch" class="glass-panel p-3 rounded-lg text-left hover:bg-slate-800 transition-all border-l-4 border-transparent opacity-60">
+                <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Step 3</div>
+                <div class="font-semibold text-white text-sm md:text-base">Launch Voyage</div>
+            </button>
+             <button onclick="switchTab('extensions')" id="btn-extensions" class="glass-panel p-3 rounded-lg text-left hover:bg-slate-800 transition-all border-l-4 border-purple-500 opacity-60 col-span-2 md:col-span-1">
+                <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Extra Credit</div>
+                <div class="font-semibold text-purple-300 text-sm md:text-base">The 32 Houses</div>
+            </button>
+        </div>
+
+        <!-- Dynamic Content Area -->
+        <div id="content-area" class="min-h-[400px]">
+            <!-- Content injected via JS -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 mt-12 bg-slate-900 py-6 text-center text-slate-500 text-sm">
+        <p>AP Computer Science A • CSAwesome Unit 3 Review</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- Star Animation Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Safety check for Lucide
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            const container = document.getElementById('star-container');
+            for(let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const xy = [Math.random() * 100, Math.random() * 100];
+                const duration = Math.random() * 3 + 2;
+                const size = Math.random() * 2 + 1;
+                star.style.left = `${xy[0]}%`;
+                star.style.top = `${xy[1]}%`;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.setProperty('--duration', `${duration}s`);
+                star.style.setProperty('--opacity', Math.random());
+                container.appendChild(star);
+            }
+            // Load initial tab
+            switchTab('briefing');
+        });
+
+        // --- Content Database ---
+        const content = {
+            briefing: `
+                <div class="glass-panel p-8 rounded-xl shadow-2xl animate-fade-in">
+                    <div class="flex items-start gap-6">
+                        <div class="bg-cyan-900/30 p-4 rounded-full hidden md:block">
+                            <i data-lucide="map" class="w-10 h-10 text-cyan-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-bold text-white mb-4">The Challenge: Navigating Without Instruments</h3>
+                            <p class="text-slate-300 mb-6 leading-relaxed">
+                                In modern Java, we often use objects that others have built for us (like <span class="code-font text-yellow-400">String</span> or <span class="code-font text-yellow-400">Math</span>). Today, you must build the object yourself.
+                            </p>
+                            <p class="text-slate-300 mb-6 leading-relaxed">
+                                We are modeling the <strong>Hawaiian Star Compass</strong> ($Kapehu Whet\bar{u}$). Unlike a magnetic compass that points North, this system orients the canoe relative to the wind and the rising/setting stars.
+                            </p>
+                            
+                            <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-lg mb-8">
+                                <h4 class="text-lg font-semibold text-cyan-300 mb-3">Key Concepts for Review</h4>
+                                <ul class="space-y-3">
+                                    <li class="flex items-center gap-3">
+                                        <i data-lucide="check-circle-2" class="w-5 h-5 text-green-400"></i>
+                                        <span><strong>State (Variables):</strong> What does a star <em>know</em> about itself? (Name, Brightness)</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <i data-lucide="check-circle-2" class="w-5 h-5 text-green-400"></i>
+                                        <span><strong>Behavior (Methods):</strong> What answers can a star <em>give</em> us? (Compass location, Visibility)</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-400"></i>
+                                        <span><strong>Logic (Conditionals):</strong> Reviewing <span class="code-font">if</span>, <span class="code-font">else</span>, and <span class="code-font">&&</span>.</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <button onclick="switchTab('anatomy')" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-8 rounded-lg transition-colors flex items-center gap-2">
+                                Start Phase 1: Class Anatomy <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                `,
+            anatomy: `
+                <div class="glass-panel p-8 rounded-xl shadow-2xl animate-fade-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-white">Phase 1: The Blueprint (Star.java)</h3>
+                        <span class="text-xs font-bold bg-blue-900 text-blue-200 px-3 py-1 rounded-full border border-blue-700">Section 3.3 & 3.4</span>
+                    </div>
+
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <!-- Level 1 -->
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="text-lg font-semibold text-cyan-300 mb-3 border-b border-slate-700 pb-2">Level 1: Fundamentals</h4>
+                                <p class="text-slate-300 mb-2 text-sm">Define the state and the constructor.</p>
+                                <ul class="space-y-3">
+                                    <li class="bg-slate-800/50 p-3 rounded border border-slate-700">
+                                        <div class="text-cyan-400 font-bold text-sm">Instance Variables (Private)</div>
+                                        <div class="text-slate-400 text-xs mt-1">
+                                            <code class="code-font text-yellow-200">name</code> (String)<br>
+                                            <code class="code-font text-yellow-200">magnitude</code> (double) - Brightness<br>
+                                            <code class="code-font text-yellow-200">declination</code> (double) - Latitude overhead
+                                        </div>
+                                    </li>
+                                    <li class="bg-slate-800/50 p-3 rounded border border-slate-700">
+                                        <div class="text-cyan-400 font-bold text-sm">Constructor</div>
+                                        <div class="text-slate-400 text-xs mt-1">
+                                            Initialize all three variables.<br>
+                                            <em>Remember: No return type!</em>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Level 2 -->
+                        <div>
+                            <h4 class="text-lg font-semibold text-purple-300 mb-3 border-b border-slate-700 pb-2">Level 2: Advanced Behaviors</h4>
+                            <p class="text-slate-300 mb-4 text-sm">Implement these additional methods to make your Star intelligent.</p>
+                            
+                            <div class="space-y-4">
+                                <!-- Method 1 -->
+                                <div class="bg-slate-900 p-3 rounded border border-slate-700">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <i data-lucide="eye" class="w-4 h-4 text-purple-400"></i>
+                                        <span class="code-font text-sm font-bold text-white">isBrighterThan</span>
+                                    </div>
+                                    <div class="text-xs text-slate-400 mb-2">Compares this star to another star.</div>
+                                    <div class="bg-black/40 p-2 rounded code-font text-xs text-slate-300">
+                                        <span class="text-purple-400">public boolean</span> isBrighterThan(Star <span class="text-orange-300">other</span>)
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 mt-1">Hint: Lower magnitude number = Brighter star.</div>
+                                </div>
+
+                                <!-- Method 2 -->
+                                <div class="bg-slate-900 p-3 rounded border border-slate-700">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <i data-lucide="globe" class="w-4 h-4 text-purple-400"></i>
+                                        <span class="code-font text-sm font-bold text-white">isVisible</span>
+                                    </div>
+                                    <div class="text-xs text-slate-400 mb-2">Can we see it from our current latitude?</div>
+                                    <div class="bg-black/40 p-2 rounded code-font text-xs text-slate-300">
+                                        <span class="text-purple-400">public boolean</span> isVisible(<span class="text-purple-400">double</span> <span class="text-orange-300">latitude</span>)
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 mt-1">Logic: |latitude - declination| <= 90</div>
+                                </div>
+
+                                <!-- Method 3 -->
+                                <div class="bg-slate-900 p-3 rounded border border-slate-700">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <i data-lucide="file-text" class="w-4 h-4 text-purple-400"></i>
+                                        <span class="code-font text-sm font-bold text-white">toString</span>
+                                    </div>
+                                    <div class="bg-black/40 p-2 rounded code-font text-xs text-slate-300">
+                                        <span class="text-purple-400">public String</span> toString()
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 mt-1">Return a string like: "StarName (Mag: -1.5)"</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            logic: `
+                <div class="glass-panel p-8 rounded-xl shadow-2xl animate-fade-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-white">Phase 2: Compass Logic</h3>
+                        <span class="text-xs font-bold bg-blue-900 text-blue-200 px-3 py-1 rounded-full border border-blue-700">Section 3.5 & Review</span>
+                    </div>
+
+                    <p class="text-slate-300 mb-6">
+                        A star needs to tell us where it is. You will write a method <span class="code-font text-cyan-300">public String getQuadrant(double bearing)</span>.
+                        The Hawaiian compass divides the horizon based on wind patterns.
+                    </p>
+
+                    <div class="grid md:grid-cols-2 gap-8">
+                        
+                        <!-- Logic Table -->
+                        <div class="bg-slate-800 rounded-lg overflow-hidden border border-slate-700">
+                            <table class="w-full text-sm text-left text-slate-300">
+                                <thead class="text-xs text-slate-400 uppercase bg-slate-900">
+                                    <tr>
+                                        <th class="px-6 py-3">Bearing Range</th>
+                                        <th class="px-6 py-3">Quadrant Name</th>
+                                        <th class="px-6 py-3">Logic Hint</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-slate-700 bg-slate-800/50">
+                                        <td class="px-6 py-4">0 to &lt; 90</td>
+                                        <td class="px-6 py-4 font-bold text-cyan-300">Ko'olau (NE)</td>
+                                        <td class="px-6 py-4 font-mono text-xs">b >= 0 && b < 90</td>
+                                    </tr>
+                                    <tr class="border-b border-slate-700">
+                                        <td class="px-6 py-4">90 to &lt; 180</td>
+                                        <td class="px-6 py-4 font-bold text-cyan-300">Malanai (SE)</td>
+                                        <td class="px-6 py-4 font-mono text-xs text-slate-500">?</td>
+                                    </tr>
+                                    <tr class="border-b border-slate-700 bg-slate-800/50">
+                                        <td class="px-6 py-4">180 to &lt; 270</td>
+                                        <td class="px-6 py-4 font-bold text-cyan-300">Kona (SW)</td>
+                                        <td class="px-6 py-4 font-mono text-xs text-slate-500">?</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4">270 to &lt; 360</td>
+                                        <td class="px-6 py-4 font-bold text-cyan-300">Ho'olua (NW)</td>
+                                        <td class="px-6 py-4 font-mono text-xs text-slate-500">?</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Interactive Simulator -->
+                        <div class="bg-slate-900 p-6 rounded-lg border border-slate-700">
+                            <h4 class="text-sm font-bold text-slate-400 uppercase mb-4">Logic Simulator</h4>
+                            <p class="text-xs text-slate-500 mb-4">Test your boolean logic before you code. Enter a bearing to see the result.</p>
+                            
+                            <div class="flex gap-2 mb-4">
+                                <input type="number" id="bearingInput" placeholder="0-359" class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block w-full p-2.5">
+                                <button onclick="checkBearing()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-lg">Check</button>
+                            </div>
+                            
+                            <div id="bearingResult" class="min-h-[60px] flex items-center justify-center bg-slate-950 rounded border border-slate-800 text-sm font-mono text-slate-400">
+                                Waiting for input...
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <div class="mt-6 bg-blue-900/20 border border-blue-800 p-4 rounded text-sm text-blue-200">
+                        <strong>Critical Review:</strong> Remember that in Java, you cannot write <span class="code-font bg-blue-900 px-1 rounded">0 < x < 90</span>. You must break it into two boolean statements joined by <span class="code-font bg-blue-900 px-1 rounded">&&</span> (AND).
+                    </div>
+                </div>
+            `,
+            launch: `
+                <div class="glass-panel p-8 rounded-xl shadow-2xl animate-fade-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-white">Phase 3: The Voyage</h3>
+                        <span class="text-xs font-bold bg-blue-900 text-blue-200 px-3 py-1 rounded-full border border-blue-700">Wayfinder.java</span>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-8 items-start">
+                        <div class="flex-1">
+                            <p class="text-slate-300 mb-4 text-sm">
+                                Open <span class="code-font text-yellow-400">Wayfinder.java</span> (your client class with <span class="code-font">main</span>). Perform the following fleet command checks:
+                            </p>
+
+                            <div class="space-y-4">
+                                <div class="bg-slate-800/50 p-4 rounded-lg border-l-4 border-yellow-500">
+                                    <div class="font-bold text-white text-sm mb-2">Mission 1: Instantiation</div>
+                                    <div class="text-xs text-slate-400">Create these two star objects:</div>
+                                    <div class="mt-2 font-mono text-[10px] text-cyan-300 bg-slate-900 p-2 rounded">
+                                        1. "Hōkūleʻa", Mag: -0.05, Dec: 19.1<br>
+                                        2. "'A'ā", Mag: -1.46, Dec: -16.7
+                                    </div>
+                                </div>
+
+                                <div class="bg-slate-800/50 p-4 rounded-lg border-l-4 border-blue-500">
+                                    <div class="font-bold text-white text-sm mb-2">Mission 2: System Check</div>
+                                    <ul class="list-disc list-inside text-xs text-slate-400 space-y-2">
+                                        <li>Print both stars using <span class="code-font text-yellow-200">toString()</span>.</li>
+                                        <li>Use <span class="code-font text-yellow-200">isBrighterThan</span> to print which star is brighter.</li>
+                                        <li><strong>Simulation:</strong> Check if Hōkūleʻa is visible from Antarctica (Latitude -82.8). Print the result.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 bg-slate-900 p-6 rounded-lg border border-slate-700 h-full">
+                            <h4 class="text-lg font-semibold text-cyan-300 mb-4">Launch Checklist</h4>
+                            <div class="space-y-3">
+                                <label class="flex items-center space-x-3 cursor-pointer group">
+                                    <input type="checkbox" class="w-5 h-5 text-cyan-600 rounded bg-slate-800 border-slate-600 focus:ring-cyan-600 focus:ring-2">
+                                    <span class="text-slate-300 group-hover:text-white transition-colors text-sm">Compiles without error</span>
+                                </label>
+                                <label class="flex items-center space-x-3 cursor-pointer group">
+                                    <input type="checkbox" class="w-5 h-5 text-cyan-600 rounded bg-slate-800 border-slate-600 focus:ring-cyan-600 focus:ring-2">
+                                    <span class="text-slate-300 group-hover:text-white transition-colors text-sm">toString() prints neatly</span>
+                                </label>
+                                <label class="flex items-center space-x-3 cursor-pointer group">
+                                    <input type="checkbox" class="w-5 h-5 text-cyan-600 rounded bg-slate-800 border-slate-600 focus:ring-cyan-600 focus:ring-2">
+                                    <span class="text-slate-300 group-hover:text-white transition-colors text-sm">Magnitude comparison is correct (Lower is better!)</span>
+                                </label>
+                                <label class="flex items-center space-x-3 cursor-pointer group">
+                                    <input type="checkbox" class="w-5 h-5 text-cyan-600 rounded bg-slate-800 border-slate-600 focus:ring-cyan-600 focus:ring-2">
+                                    <span class="text-slate-300 group-hover:text-white transition-colors text-sm">Visibility math checks out</span>
+                                </label>
+                            </div>
+                            <div class="mt-8 pt-6 border-t border-slate-800 text-center">
+                                <button onclick="switchTab('extensions')" class="w-full bg-purple-900/50 hover:bg-purple-800 text-purple-200 border border-purple-700 px-4 py-3 rounded text-sm font-bold transition-all">
+                                    Mission Complete? Unlock Extensions
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            extensions: `
+                <div class="glass-panel p-8 rounded-xl shadow-2xl animate-fade-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="sparkles" class="text-purple-400 w-8 h-8"></i>
+                            <h3 class="text-2xl font-bold text-white">Extension: The 32 Houses</h3>
+                        </div>
+                        <span class="text-xs font-bold bg-purple-900 text-purple-200 px-3 py-1 rounded-full border border-purple-700">Advanced Logic</span>
+                    </div>
+
+                    <p class="text-slate-300 mb-6 text-sm">
+                        True master navigators know more than just the four quadrants. The horizon is divided into 32 "Houses" of 11.25° each.
+                        Can you write a method <span class="code-font text-purple-400">getHouse(double bearing)</span> that returns the specific Hawaiian name for the star's house?
+                    </p>
+
+                    <div class="grid lg:grid-cols-3 gap-6">
+                        
+                        <!-- Reference Table -->
+                        <div class="lg:col-span-2 bg-slate-900 rounded-lg border border-slate-700 flex flex-col max-h-[400px]">
+                            <div class="p-3 border-b border-slate-700 bg-slate-800 font-bold text-slate-300 text-sm flex justify-between">
+                                <span>House Reference Table</span>
+                                <span class="text-xs font-normal text-slate-500">Width: 11.25° per house</span>
+                            </div>
+                            <div class="overflow-y-auto flex-grow p-0">
+                                <table class="w-full text-sm text-left text-slate-400">
+                                    <thead class="text-xs text-slate-500 uppercase bg-slate-950 sticky top-0">
+                                        <tr>
+                                            <th class="px-4 py-2">House Name</th>
+                                            <th class="px-4 py-2">Start (°)</th>
+                                            <th class="px-4 py-2">End (°)</th>
+                                            <th class="px-4 py-2">Meaning</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="font-mono text-xs">
+                                        <!-- Quadrant 1: NE (Ko'olau) -->
+                                        <tr class="house-table-row"><td class="px-4 py-2 text-green-400">Haka (N)</td><td>354.375</td><td>5.625</td><td>Empty/Void</td></tr>
+                                        <tr class="house-table-row"><td class="px-4 py-2 text-green-400">Nā Leo</td><td>5.625</td><td>16.875</td><td>The Voices</td></tr>
+                                        <tr class="house-table-row"><td class="px-4 py-2 text-green-400">Nālani</td><td>16.875</td><td>28.125</td><td>The Heavens</td></tr>
+                                        <tr class="house-table-row"><td class="px-4 py-2 text-green-400">Manu</td><td>28.125</td><td>39.375</td><td>The Bird</td></tr>
+                                        <tr class="house-table-row"><td class="px-4 py-2 text-green-400">Noio</td><td>39.375</td><td>50.625</td><td>Tern</td></tr>
+                                        <tr class="house-table-row"><td class="px-4 py-2 text-green-400">'Āina</td><td>50.625</td><td>61.875</td><td>Land</td></tr>
+                                        <tr class="house-table-row"><td class="px-4 py-2 text-green-400">Lā (E)</td><td>61.875</td><td>73.125</td><td>Sun</td></tr>
+                                        
+                                        <!-- Transition to SE -->
+                                        <tr class="house-table-row"><td class="px-4 py-2 text-yellow-400">'Āina</td><td>73.125</td><td>84.375</td><td>Land (SE)</td></tr>
+                                        <tr class="house-table-row"><td class="px-4 py-2 text-yellow-400">Noio</td><td>84.375</td><td>95.625</td><td>Tern (SE)</td></tr>
+                                        <tr class="house-table-row"><td class="px-4 py-2 text-yellow-400">Manu</td><td>95.625</td><td>106.875</td><td>Bird (SE)</td></tr>
+                                        <tr class="house-table-row"><td class="px-4 py-2 text-yellow-400">Nālani</td><td>106.875</td><td>118.125</td><td>Heavens (SE)</td></tr>
+                                        <tr class="house-table-row"><td class="px-4 py-2 text-yellow-400">Nā Leo</td><td>118.125</td><td>129.375</td><td>Voices (SE)</td></tr>
+                                        <tr class="house-table-row"><td class="px-4 py-2 text-yellow-400">Haka (S)</td><td>129.375</td><td>140.625</td><td>Void (S)</td></tr>
+                                        <!-- Simplified list for display ... -->
+                                    </tbody>
+                                </table>
+                                <div class="p-4 text-xs text-center text-slate-500 italic">
+                                    * Full table abbreviated. Notice the pattern? The names mirror from the Cardinals (N, E, S, W) towards the middle (Manu).
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hints Panel -->
+                        <div class="bg-slate-800 p-6 rounded-lg border border-slate-700">
+                            <h4 class="text-sm font-bold text-purple-300 uppercase mb-4">Coding Strategy</h4>
+                            
+                            <div class="mb-6">
+                                <div class="text-xs font-bold text-white mb-1">Step 1: Normalize</div>
+                                <p class="text-xs text-slate-400">
+                                    Since the pattern repeats, try to figure out which "slice" of 11.25° the bearing falls into.
+                                </p>
+                            </div>
+
+                            <div class="mb-6">
+                                <div class="text-xs font-bold text-white mb-1">Step 2: Arrays (Preview)</div>
+                                <p class="text-xs text-slate-400">
+                                    Instead of 32 if/statements, could you put the names in a list?
+                                    <br><code class="code-font text-yellow-200 mt-1 block">String[] houses = {"Haka", "Na Leo", ...};</code>
+                                </p>
+                            </div>
+                             
+                            <div class="bg-purple-900/30 border border-purple-800 p-3 rounded text-xs text-purple-200">
+                                <strong>Challenge:</strong> The house "Haka" actually wraps around 0 (354° to 5°). Handle this edge case first!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+        };
+
+        // --- Tab Switching Logic ---
+        function switchTab(tabId) {
+            // Update Content
+            const contentDiv = document.getElementById('content-area');
+            contentDiv.innerHTML = content[tabId];
+            
+            // Safe Lucide re-init
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            // Update Buttons
+            const buttons = ['briefing', 'anatomy', 'logic', 'launch', 'extensions'];
+            buttons.forEach(id => {
+                const btn = document.getElementById(`btn-${id}`);
+                if (!btn) return;
+
+                // Selectors for internal elements
+                const labelDiv = btn.firstElementChild; // The small top label (Step X)
+                const titleDiv = btn.lastElementChild;  // The main title
+
+                if (id === tabId) {
+                    btn.classList.remove('opacity-60', 'border-transparent');
+                    
+                    if(id === 'extensions') {
+                         btn.classList.add('border-purple-500');
+                         titleDiv.classList.remove('text-purple-300');
+                         titleDiv.classList.add('text-purple-400');
+                    } else {
+                        btn.classList.add('border-cyan-500');
+                        labelDiv.classList.add('text-cyan-400');
+                        labelDiv.classList.remove('text-slate-500');
+                    }
+                } else {
+                    btn.classList.add('opacity-60', 'border-transparent');
+                    
+                    if(id === 'extensions') {
+                         btn.classList.remove('border-purple-500');
+                         titleDiv.classList.add('text-purple-300');
+                         titleDiv.classList.remove('text-purple-400');
+                    } else {
+                        btn.classList.remove('border-cyan-500');
+                        labelDiv.classList.remove('text-cyan-400');
+                        labelDiv.classList.add('text-slate-500');
+                    }
+                }
+            });
+        }
+
+        // --- Logic Simulator ---
+        function checkBearing() {
+            const input = document.getElementById('bearingInput');
+            const resultDiv = document.getElementById('bearingResult');
+            const val = parseFloat(input.value);
+
+            if (isNaN(val)) {
+                resultDiv.innerHTML = '<span class="text-red-400">Please enter a valid number.</span>';
+                return;
+            }
+
+            // Normalize bearing logic similar to the Java activity
+            let bearing = val % 360;
+            if (bearing < 0) bearing += 360;
+
+            let result = "";
+            let color = "text-white";
+
+            if (bearing >= 0 && bearing < 90) {
+                result = "Ko'olau (NE)";
+                color = "text-green-400";
+            } else if (bearing >= 90 && bearing < 180) {
+                result = "Malanai (SE)";
+                color = "text-yellow-400";
+            } else if (bearing >= 180 && bearing < 270) {
+                result = "Kona (SW)";
+                color = "text-orange-400";
+            } else {
+                result = "Ho'olua (NW)";
+                color = "text-red-400";
+            }
+
+            resultDiv.innerHTML = `
+                <div class="text-center">
+                    <div class="text-xs text-slate-500 mb-1">Normalized: ${bearing.toFixed(1)}°</div>
+                    <div class="text-lg font-bold ${color}">${result}</div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
